@@ -1,0 +1,32 @@
+# 🛠 Python 관련 불필요한 파일들
+__pycache__/
+*.py[cod]
+*.so
+*.swp
+*.swo
+.DS_Store
+
+# 🔹 가상환경 관련 (venv)
+venv/
+env/
+*.venv
+
+# 🔹 Pygame 빌드 관련 (PyInstaller 사용 시)
+build/
+dist/
+*.spec
+*.exe
+*.dll
+
+# 🔹 환경 변수 설정 파일 (보안 관련)
+.env
+config.json
+
+# 🔹 macOS/Linux 관련 불필요한 파일
+*.DS_Store
+Thumbs.db
+
+# 🔹 IDE 관련 설정 파일 (VS Code, PyCharm 등)
+.idea/
+*.iml
+*.sublime-workspace
