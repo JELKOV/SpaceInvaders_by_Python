@@ -1,10 +1,14 @@
 import pygame
 import settings
+import os
 from game_manager import GameManager
 
 def main():
     # Pygame 초기화
     pygame.init()
+
+    # 현재 스크립트가 있는 디렉토리로 작업 디렉토리 변경
+    os.chdir(os.path.dirname(__file__))
 
     # 게임화면 생성( 설정에서 불러옴
     screen = pygame.display.set_mode((settings.SCREEN_WIDTH, settings.SCREEN_HEIGHT))
