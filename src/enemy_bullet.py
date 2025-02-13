@@ -13,6 +13,10 @@ class EnemyBullet:
         """미사일을 아래쪽으로 이동"""
         self.rect.y += self.speed
 
+    def check_collision(self, target):
+        """ 충돌 감지 """
+        return self.rect.colliderect(target.rect)
+
     def draw(self, screen):
         """화면에 미사일을 그림"""
         screen.blit(self.image, self.rect)

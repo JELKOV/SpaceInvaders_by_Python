@@ -20,8 +20,7 @@ def main():
     # 게임 매니저 새성
     game = GameManager(screen)
 
-    running = True
-    while running:
+    while game.running:
         # 이벤트 처리 키 입력
         game.handle_events()
         # 게임 상태 업데이트 (플레이어, 적, 총알 움직임)
@@ -30,6 +29,8 @@ def main():
         game.render()
         # FPS 유지
         clock.tick(settings.FPS)
+    # 게임 오버 시 게임 오버 화면 실행
+    game.game_over_screen()
 
     # 게임 종료
     pygame.quit()
