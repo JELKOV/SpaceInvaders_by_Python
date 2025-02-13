@@ -9,8 +9,8 @@ class Enemy:
         self.x = x
         self.y = y
         self.speed_x = speed_x
-        # 미사일 속도 추가
-        self.bullet_speed = bullet_speed
+        self.bullet_speed = bullet_speed # 미사일 속도 추가
+        self.direction = 1  # 1: 오른쪽 이동, -1: 왼쪽 이동
         # 적 이미지 로드
         self.image = pygame.image.load("../assets/images/enemy.png")
         self.rect = self.image.get_rect(center=(self.x, self.y))
@@ -19,13 +19,18 @@ class Enemy:
 
     def move(self):
         """ 적 이동: 좌우로 움직이고, 벽에 닿으면 방향 변경 """
-        self.rect.x += self.speed_x
-        if self.rect.right >= settings.SCREEN_WIDTH or self.rect.left <= 0:
-            self.speed_x *= -1  # 방향 반전
+        self.rect.x += self.speed_x * self.direction
+
+        if self.rect.right > settings.SCREEN_WIDTH:
+            self.direction = -1
+            self.rect.right = settings.SCREEN_WIDTH - 1
+        elif self.rect.left <= 0:
+            self.direction = 1
+            self.rect.left = 1
 
     def shoot(self):
         """ 일정 확률로 미사일 발사 """
-        if random.randint (1, 100) < 2:
+        if random.randint (1, 100) < 1.05:
             self.bullets.append(EnemyBullet(self.rect.centerx, self.rect.bottom, self.bullet_speed))
 
     def update_bullets(self):

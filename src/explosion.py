@@ -11,6 +11,9 @@ class Explosion:
         :param frame_height: 개별 프레임의 세로 길이 (픽셀 단위)
         :param num_frames: 폭발 애니메이션 프레임 개수
         """
+        # 스프라이트 시트에서 개별 프레임을 추출하여 리스트로 저장
+        self.images = self.load_frames(sprite_sheet, frame_width, frame_height, num_frames)
+
         # 현재 애니메이션 프레임 인덱스( 처음에는 0번 프레임부터 시작)
         self.index = 0
 
@@ -20,8 +23,7 @@ class Explosion:
         # 애니메이션이 끝났는지 여부를 확인하는 변수
         self.finished = False
 
-        # 스프라이트 시트에서 개별 프레임을 추출하여 리스트로 저장
-        self.images = self.load_frames(sprite_sheet, frame_width, frame_height, num_frames)
+
 
     @staticmethod
     def load_frames(sprite_sheet, frame_width, frame_height, num_frames):
