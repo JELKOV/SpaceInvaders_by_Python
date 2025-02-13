@@ -28,9 +28,10 @@ class Enemy:
             self.direction = 1
             self.rect.left = 1
 
-    def shoot(self):
+    def shoot(self, current_wave):
         """ 일정 확률로 미사일 발사 """
-        if random.randint (1, 100) < 1.05:
+        fire_rate = min(1.5 + (current_wave * 0.3), 10)  # 🔥 올바른 값 참조 (self.wave 사용)
+        if random.randint(1, 100) < fire_rate:
             self.bullets.append(EnemyBullet(self.rect.centerx, self.rect.bottom, self.bullet_speed))
 
     def update_bullets(self):
