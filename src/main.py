@@ -36,4 +36,9 @@ def main():
     pygame.quit()
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        print("게임이 강제 종료되었습니다.")
+    finally:
+        pygame.quit()  # ⬅ 프로그램 종료 시 Pygame을 정리
