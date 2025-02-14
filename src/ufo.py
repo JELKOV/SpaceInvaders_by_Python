@@ -1,11 +1,16 @@
 import pygame
 import random
+import os
+
+# 현재 파일 위치를 기준으로 assets 폴더 설정
+base_path = os.path.dirname(os.path.abspath(__file__))
+image_path = os.path.join(base_path, "..", "assets", "images", "ufo.png")
 
 
 class UFO:
     def __init__(self, screen_width, speed=3, points=50):
         """ UFO 초기화 (보너스 적) """
-        self.image = pygame.image.load("../assets/images/ufo.png")
+        self.image = pygame.image.load(image_path)
         self.speed = speed  # UFO 이동 속도
         self.points = points  # 처치 시 보너스 점수
 

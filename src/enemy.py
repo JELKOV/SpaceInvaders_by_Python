@@ -2,6 +2,11 @@ import pygame
 import settings
 from enemy_bullet import EnemyBullet
 import random
+import os
+
+# 현재 파일의 절대 경로를 기반으로 이미지 경로 생성
+base_path = os.path.dirname(os.path.abspath(__file__))
+image_path = os.path.join(base_path, "..", "assets", "images", "enemy.png")
 
 class Enemy:
     def __init__(self, x, y, speed_x, bullet_speed):
@@ -11,8 +16,9 @@ class Enemy:
         self.speed_x = speed_x
         self.bullet_speed = bullet_speed # 미사일 속도 추가
         self.direction = 1  # 1: 오른쪽 이동, -1: 왼쪽 이동
+
         # 적 이미지 로드
-        self.image = pygame.image.load("../assets/images/enemy.png")
+        self.image = pygame.image.load(image_path)  # 이미지 로드
         self.rect = self.image.get_rect(center=(self.x, self.y))
         # 적이 발사한 미사일 리스트
         self.bullets = []

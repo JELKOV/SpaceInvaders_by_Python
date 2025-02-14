@@ -1,4 +1,9 @@
 import pygame
+import os
+
+# 현재 파일 위치를 기준으로 assets 폴더 설정
+base_path = os.path.dirname(os.path.abspath(__file__))
+image_path = os.path.join(base_path, "..", "assets", "images", "bullet.png")
 
 class Bullet:
     def __init__(self, x, y, speed):
@@ -7,7 +12,7 @@ class Bullet:
         self.y = y
         self.speed = speed
         # 총알 이미지 로드
-        self.image = pygame.image.load("../assets/images/bullet.png")
+        self.image = pygame.image.load(image_path)
         self.rect = self.image.get_rect(center=(self.x, self.y))
 
     def move(self):

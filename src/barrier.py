@@ -1,13 +1,18 @@
 import pygame
+import os
+
+# 현재 파일 위치를 기준으로 assets 폴더 위치 설정
+BASE_PATH = os.path.dirname(os.path.abspath(__file__))
+ASSETS_PATH = os.path.join(BASE_PATH, "..", "assets", "images")
 
 class Barrier:
     def __init__(self, x, y, health=20):
         """ 방어막 초기화 """
         self.images = [
-            pygame.image.load("../assets/images/barrier.png"),  # 초기 상태
-            pygame.image.load("../assets/images/barrier_damaged1.png"),  # 1단계 손상
-            pygame.image.load("../assets/images/barrier_damaged2.png"),  # 2단계 손상
-            pygame.image.load("../assets/images/barrier_damaged3.png")   # 거의 파괴됨
+            pygame.image.load(os.path.join(ASSETS_PATH, "barrier.png")),  # 초기 상태
+            pygame.image.load(os.path.join(ASSETS_PATH, "barrier_damaged1.png")),  # 1단계 손상
+            pygame.image.load(os.path.join(ASSETS_PATH, "barrier_damaged2.png")),  # 2단계 손상
+            pygame.image.load(os.path.join(ASSETS_PATH, "barrier_damaged3.png"))   # 거의 파괴됨
         ]
         self.image = self.images[0]  # 초기 이미지
         self.rect = self.image.get_rect(center=(x, y))

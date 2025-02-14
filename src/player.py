@@ -1,5 +1,10 @@
 import pygame
 import settings
+import os
+
+# 🔥 절대 경로를 사용하여 파일을 로드
+base_path = os.path.dirname(os.path.abspath(__file__))  # 현재 파일 경로
+image_path = os.path.join(base_path, "..", "assets", "images", "player.png")  # 이미지 절대 경로 변환
 
 class Player:
     def __init__(self, x, y, speed):
@@ -9,7 +14,7 @@ class Player:
         self.speed = speed
 
         """플레이어 이미지 로드"""
-        self.image = pygame.image.load('../assets/images/player.png')
+        self.image = pygame.image.load(image_path)
         self.rect = self.image.get_rect(center=(self.x, self.y))
 
         self.alive = True  # 🔹 플레이어 생존 여부 (기본값: True)

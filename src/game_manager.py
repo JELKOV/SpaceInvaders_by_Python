@@ -2,6 +2,7 @@ import pygame
 import settings
 import random
 import pygame.mixer
+import os
 from player import Player
 from enemy import Enemy
 from bullet import Bullet
@@ -9,6 +10,14 @@ from src.barrier import Barrier
 from src.explosion import Explosion
 from src.ufo import UFO
 
+# 현재 파일의 절대 경로를 기반으로 이미지 경로 생성
+base_path = os.path.dirname(os.path.abspath(__file__))
+explosion_path = os.path.join(base_path, "..", "assets", "images", "explode.png")
+data_path = os.path.join(base_path, "..", "data")  # data 폴더 경로
+HIGH_SCORE_FILE = os.path.join(data_path, "highscore.txt")  # highscore.txt 파일 경로
+
+# Docker 환경 감지 (RUNNING_IN_DOCKER 환경변수 체크)
+IS_DOCKER = os.getenv("RUNNING_IN_DOCKER") == "true"
 
 class GameManager:
     def __init__(self, screen):
@@ -19,7 +28,7 @@ class GameManager:
         self.bullets = []
         self.enemy_bullets = []
         self.explosions = []  # 폭발 효과 관리 리스트
-        self.explosion_sprite = pygame.image.load("../assets/images/explode.png")  # 스프라이트 시트 로드
+        self.explosion_sprite = pygame.image.load(explosion_path)  # 스프라이트 시트 로드
         self.barriers = [Barrier(200, 500), Barrier(400, 500), Barrier(600, 500)]  # 방어막 3개 생성
         self.running = True
         self.ufo = None  # 현재 활성화된 UFO
@@ -32,15 +41,24 @@ class GameManager:
         self.font = pygame.font.Font('freesansbold.ttf', 36)
         self.spawn_enemies()
 
-        #사운드 초기화
-        pygame.mixer.init()
-        pygame.mixer.music.load(settings.SOUND_BACKGROUND)
-        pygame.mixer.music.set_volume(0.5)
-        pygame.mixer.music.play(-1)
 
-        self.sound_bullet = pygame.mixer.Sound(settings.SOUND_BULLET)
-        self.sound_explosion = pygame.mixer.Sound(settings.SOUND_EXPLOSION)
-        self.sound_ufo = pygame.mixer.Sound(settings.SOUND_UFO)
+        # 🔊 **사운드 초기화 (Docker에서는 비활성화)**
+        self.sound_enabled = not IS_DOCKER
+        if self.sound_enabled:
+            try:
+                pygame.mixer.init()
+                pygame.mixer.music.load(settings.SOUND_BACKGROUND)
+                pygame.mixer.music.set_volume(0.5)
+                pygame.mixer.music.play(-1)
+
+                self.sound_bullet = pygame.mixer.Sound(settings.SOUND_BULLET)
+                self.sound_explosion = pygame.mixer.Sound(settings.SOUND_EXPLOSION)
+                self.sound_ufo = pygame.mixer.Sound(settings.SOUND_UFO)
+            except pygame.error as e:
+                print(f"🔇 [Warning] pygame.mixer 초기화 실패: {e}")
+                self.sound_enabled = False  # 사운드 기능 비활성화
+        else:
+            print("🔇 Docker 환경에서 사운드 기능이 비활성화되었습니다.")
     #################################################################################################################
     def handle_events(self):
         """ 게임 매니저 초기화 """
@@ -55,7 +73,12 @@ class GameManager:
                     self.player.move_right()
                 elif event.key == pygame.K_SPACE:
                     self.bullets.append(Bullet(self.player.rect.centerx, self.player.rect.top, 5))
-                    self.sound_bullet.play()
+                    if self.sound_enabled:
+                        try:
+                            self.sound_bullet.play()
+                        except pygame.error as e:
+                            print(f"🔇 [Warning] 사운드 재생 실패: {e}")
+
 
         # 키 상태 확인 (누르고 있는 동안 계속 이동)
         keys = pygame.key.get_pressed()
@@ -119,7 +142,13 @@ class GameManager:
                 self.enemies.remove(enemy)
                 self.bullets.remove(bullet)
                 self.score += 10
-                self.sound_explosion.play()
+                # 🎵 사운드 재생 (Docker 환경에서는 실행되지 않음)
+                if self.sound_enabled:
+                    try:
+                        self.sound_explosion.play()
+                    except pygame.error as e:
+                        print(f"🔇 [Warning] 사운드 재생 실패: {e}")
+
                 break
 
     def check_enemy_bullet_collision(self, bullet):
@@ -203,7 +232,12 @@ class GameManager:
                     self.ufo_hit_effect(self.ufo.points)
                     self.ufo = None  # UFO 제거
                     self.bullets.remove(bullet)
-                    self.sound_ufo.play()
+                    # 🎵 사운드 재생 (Docker 환경에서는 실행되지 않음)
+                    if self.sound_enabled:
+                        try:
+                            self.sound_ufo.play()
+                        except pygame.error as e:
+                            print(f"🔇 [Warning] 사운드 재생 실패: {e}")
                     break
 
     def ufo_hit_effect(self, score):
@@ -284,7 +318,10 @@ class GameManager:
     def load_high_score():
         """ 기존 최고 점수를 불러옴 (파일 저장 방식) """
         try:
-            with open("../data/highscore.txt", "r") as file:
+            if not os.path.exists(HIGH_SCORE_FILE):
+                return 0  # 파일이 없으면 기본값 0 반환
+
+            with open(HIGH_SCORE_FILE, "r") as file:
                 data = file.read().strip()
                 return int(data) if data.isdigit() else 0
         except (FileNotFoundError, ValueError):
@@ -292,7 +329,12 @@ class GameManager:
 
     def save_high_score(self):
         """ 최고 점수 저장 (비어있을 경우 기본값 0 설정) """
-        with open("../data/highscore.txt", "w") as file:
+        # ✅ data 폴더가 없으면 생성
+        if not os.path.exists(data_path):
+            os.makedirs(data_path)
+
+        # ✅ 파일을 절대 경로로 저장
+        with open(HIGH_SCORE_FILE, "w") as file:
             file.write(str(self.high_score or 0))  #  None 또는 빈 값 방지
 
     def check_new_record(self):
