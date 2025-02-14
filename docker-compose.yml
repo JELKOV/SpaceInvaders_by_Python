@@ -1,0 +1,9 @@
+version: '3'
+services:
+  space-invaders:
+    build: .
+    container_name: space-invaders-game
+    volumes:
+      - ./data:/app/data
+    stdin_open: true
+    tty: true
