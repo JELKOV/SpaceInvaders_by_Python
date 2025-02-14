@@ -1,0 +1,12 @@
+# Space Invaders - Build Information
+Version: 1.0.0
+Build Date: 2024-02-14
+Maintainer: JELKOV
+Description:
+This build is optimized for Docker deployment.
+Dependencies:
+- Python 3.13
+- pygame 2.6.1
+- Required assets (images, sounds) included.
+Deployment:
+- Run `docker-compose up` to start the game in a container.
