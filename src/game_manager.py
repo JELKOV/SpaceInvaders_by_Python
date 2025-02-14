@@ -1,6 +1,7 @@
 import pygame
 import settings
 import random
+import pygame.mixer
 from player import Player
 from enemy import Enemy
 from bullet import Bullet
@@ -31,6 +32,15 @@ class GameManager:
         self.font = pygame.font.Font('freesansbold.ttf', 36)
         self.spawn_enemies()
 
+        #사운드 초기화
+        pygame.mixer.init()
+        pygame.mixer.music.load(settings.SOUND_BACKGROUND)
+        pygame.mixer.music.set_volume(0.5)
+        pygame.mixer.music.play(-1)
+
+        self.sound_bullet = pygame.mixer.Sound(settings.SOUND_BULLET)
+        self.sound_explosion = pygame.mixer.Sound(settings.SOUND_EXPLOSION)
+        self.sound_ufo = pygame.mixer.Sound(settings.SOUND_UFO)
     #################################################################################################################
     def handle_events(self):
         """ 게임 매니저 초기화 """
@@ -45,6 +55,8 @@ class GameManager:
                     self.player.move_right()
                 elif event.key == pygame.K_SPACE:
                     self.bullets.append(Bullet(self.player.rect.centerx, self.player.rect.top, 5))
+                    self.sound_bullet.play()
+
         # 키 상태 확인 (누르고 있는 동안 계속 이동)
         keys = pygame.key.get_pressed()
         if keys[pygame.K_LEFT]:
@@ -107,6 +119,7 @@ class GameManager:
                 self.enemies.remove(enemy)
                 self.bullets.remove(bullet)
                 self.score += 10
+                self.sound_explosion.play()
                 break
 
     def check_enemy_bullet_collision(self, bullet):
@@ -190,6 +203,7 @@ class GameManager:
                     self.ufo_hit_effect(self.ufo.points)
                     self.ufo = None  # UFO 제거
                     self.bullets.remove(bullet)
+                    self.sound_ufo.play()
                     break
 
     def ufo_hit_effect(self, score):
@@ -223,21 +237,31 @@ class GameManager:
 
     def spawn_enemies(self):
         """ 새로운 웨이브에서 적을 생성 (웨이브가 증가할수록 더 많은 적 등장) """
-        enemy_count_per_row = 5 + (self.wave // 3)  # 기본 5마리 + 3스테이지마다 1마리 추가
-        enemy_speed = min(2 + self.wave * 0.3, 6)  # 속도 상한선 설정 (최대 6)
 
-        # 🔹 5스테이지 이상이면 적을 2줄로 배치
-        rows = 2 if self.wave >= 5 else 1
+        enemy_count_per_row = 5 + (self.wave // 3)  # 기본 5마리 + 3스테이지마다 1마리 추가
+        enemy_speed = min(2 + self.wave * 0.2, 3)  # 속도 증가 완화 (최대 3)
+
+        # 🔹 스테이지에 따라 적 줄 수 증가 (최대 4줄)
+        if self.wave >= 9:
+            rows = 4
+        elif self.wave >= 6:
+            rows = 3
+        elif self.wave >= 3:
+            rows = 2
+        else:
+            rows = 1
 
         self.enemies = []
         for row in range(rows):
             for i in range(enemy_count_per_row):
-                self.enemies.append(Enemy(100 * i, 50 + (row * 60), enemy_speed, 0.5))
+                x_position = 50 + (i * 100)  # 적 간격 조정
+                y_position = 50 + (row * 60)  # 줄마다 Y축 위치 조정
+                self.enemies.append(Enemy(x_position, y_position, enemy_speed, 0.5))
 
         self.barriers = [Barrier(200, 500), Barrier(400, 500), Barrier(600, 500)]  # 방어막 3개 생성
         self.ufo_count = 0
 
-        print(f"🌟 웨이브 {self.wave} 시작! 적 {len(self.enemies)}마리 등장, 속도 {enemy_speed}")
+        print(f"🌟 웨이브 {self.wave} 시작! 적 {len(self.enemies)}마리 등장, 속도 {enemy_speed}, 줄 수 {rows}")
 
     def check_wave_progression(self):
         """ 모든적이 제거되면  새로운 웨이브 시작"""
@@ -311,7 +335,7 @@ class GameManager:
 
         self.screen.blit(text, text_rect)
         pygame.display.flip()
-        pygame.time.delay(1000)  # 1초간 표시
+        pygame.time.delay(2000)  # 2초간 표시
 
 
     def game_over(self):
@@ -332,22 +356,21 @@ class GameManager:
 
         while True:
             self.screen.fill((0, 0, 0))  # 화면을 검은색으로 초기화
-            self.screen.blit(text, text_rect)  # "GAME OVER" 메시지 표시
-            self.screen.blit(restart_text, restart_rect)  # "재시작" 메시지 표시
-            pygame.display.flip()  # 화면 갱신
+            self.screen.blit(text, text_rect)
+            self.screen.blit(restart_text, restart_rect)
+            pygame.display.flip()
 
-            # 키보드 입력 대기
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
-                    exit()
+                    exit()  # 정상 종료 코드
                 elif event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_r:  # 🔹 'R' 키를 누르면 게임 재시작
+                    if event.key == pygame.K_r:  # R 키로 게임 재시작
                         self.reset_game()
                         return  # 게임 루프로 돌아가기
-                    elif event.key == pygame.K_ESCAPE:  # 🔹 'ESC' 키를 누르면 게임 종료
+                    elif event.key == pygame.K_ESCAPE:  # ESC 키로 종료
                         pygame.quit()
-                        exit()
+                        exit()  # 정상 종료 코드
 
     def reset_game(self):
         """ 게임을 초기 상태로 재설정 """
